@@ -30,7 +30,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_SPEAR600				/* SPEAr600 SoC */
+#define CONFIG_SOC_SPEAR600			/* SPEAr600 SoC */
 #define CONFIG_X600				/* on X600 board */
 
 #include <asm/arch/hardware.h>
