@@ -41,6 +41,7 @@
 #if !defined(CONFIG_SPEAR_USBTTY)
 	#define CONFIG_DESIGNWARE_ETH
 	#define CONFIG_DW_SEARCH_PHY
+	#define CONFIG_PHY_GIGE
 	#define CONFIG_DW0_PHY			1
 	#define CONFIG_PHY_RESET_DELAY		10000		/* in usec */
 	#define CONFIG_DW_AUTONEG
@@ -52,6 +53,14 @@
 	#define CONFIG_I2C_CHIPADDRESS		0x50
 	#define CONFIG_SYS_I2C_SPEED		400000
 	#define CONFIG_SYS_I2C_SLAVE		0x02
+#endif
+
+/* GPIO configurations */
+#define CONFIG_SPEAR_GPIO
+
+/* USB EHCI configurations */
+#if !defined(CONFIG_SPEAR_USBTTY)
+	#define CONFIG_USB_EHCI_SPEAR
 #endif
 
 /* AMBA PL011 configurations */
@@ -70,21 +79,30 @@
 /* ST SMI (Serial flash) configurations */
 #define CONFIG_ST_SMI
 
+/* SPL support */
+#define CONFIG_SPL
+#define CONFIG_SPEAR_DDR_2HCLK
+#define CONFIG_DDR_MT47H32M16
+#define CONFIG_SPL_TEXT_BASE			0xD2800B00
+#define CONFIG_SYS_SNOR_BOOT_BASE		0xF8010000
+
 #if defined(CONFIG_ENV_IS_IN_FLASH)
 	/* Environment is in serial NOR flash */
 	#define CONFIG_ENV_ADDR			0xF8060000
 	#define CONFIG_ENV_SECT_SIZE		0x00010000
-	#define CONFIG_SPEAR_ROOTFSBLK		"/dev/mtdblock3 "
-	#define CONFIG_BOOTCOMMAND		"bootm 0xF8060000"
+	#define CONFIG_SPEAR_ROOTFSBLK		"/dev/mtdblock5 "
+	#define CONFIG_BOOTCOMMAND		"" \
+		"bootm 0xf8080000 - 0xf8070000"
 
 #elif defined(CONFIG_ENV_IS_IN_NAND)
 	/* Environment is in NAND */
-	#define CONFIG_ENV_OFFSET		0x00060000
-	#define CONFIG_SPEAR_ROOTFSBLK		"/dev/mtdblock7 "
+	#define CONFIG_ENV_OFFSET		0x00140000
+	#define CONFIG_SPEAR_ROOTFSBLK		"/dev/mtdblock11 "
 
-	#define CONFIG_BOOTCOMMAND		"nand read.jffs2 0x1600000 " \
-						"0x80000 0x4C0000; " \
-						"bootm 0x1600000"
+	#define CONFIG_BOOTCOMMAND		"" \
+		"nand read.jffs2 0x800000 0x180000 0x020000; " \
+		"nand read.jffs2 0x900000 0x1c0000 0x4C0000; " \
+		"bootm 0x900000 - 0x800000"
 #endif
 
 #define CONFIG_BOOTARGS				"console=ttyAMA0,115200 " \
