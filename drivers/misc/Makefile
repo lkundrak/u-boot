@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libmisc.o
 
 COBJS-$(CONFIG_ALI152X) += ali512x.o
+COBJS-$(CONFIG_C3) += c3.o
 COBJS-$(CONFIG_DS4510)  += ds4510.o
 COBJS-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.o
 COBJS-$(CONFIG_GPIO_LED) += gpio_led.o
