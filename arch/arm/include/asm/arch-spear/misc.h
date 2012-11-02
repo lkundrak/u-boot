@@ -157,6 +157,9 @@ struct misc_regs {
 #define MISC_PRISOCID_SHFT		16
 #define MISC_SECSOCID_SHFT		8
 
+/* amem_cfg_ctrl */
+#define MISC_AMEM_CLKENB		0x00000001
+
 /* synth_clk */
 #define MISC_SYNTH23			0x00020003
 
