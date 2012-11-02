@@ -30,7 +30,7 @@
 #include <usb.h>
 #include "ehci.h"
 #include <asm/arch/hardware.h>
-
+#include <asm/arch/generic.h>
 
 /*
  * Create the appropriate control structures to manage
@@ -55,5 +55,12 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
  */
 int ehci_hcd_stop(int index)
 {
+#if defined(CONFIG_ARCH_SPEAR3XX)
+	spear3xx_usbh_stop();
+#elif defined(CONFIG_ARCH_SPEAR6XX)
+	spear6xx_usbh_stop();
+#else
+#error No spear platforms defined
+#endif
 	return 0;
 }
