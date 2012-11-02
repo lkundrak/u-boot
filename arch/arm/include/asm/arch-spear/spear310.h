@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2012 Stefan Roese <sr@denx.de>
+ * (C) Copyright 2012
+ * Vipin Kumar, STMicroelectronics, <vipin.kumar@st.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -11,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -20,26 +21,20 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _SPR_SSP_H
-#define _SPR_SSP_H
+#ifndef _ASM_ARCH_SPEAR310_H
+#define _ASM_ARCH_SPEAR310_H
 
-struct ssp_regs {
-	u32 sspcr0;
-	u32 sspcr1;
-	u32 sspdr;
-	u32 sspsr;
-	u32 sspcpsr;
-	u32 sspimsc;
-	u32 sspicr;
-	u32 sspdmacr;
-};
+#include <asm/arch/spear3xx.h>
 
-#define SSPCR0_FRF_MOT_SPI	0x0000
-#define SSPCR0_DSS_16BITS	0x000f
+#define CONFIG_SYS_FSMC_BASE			0x44000000
+#define CONFIG_SYS_NAND_CLE			(1 << 17)
+#define CONFIG_SYS_NAND_ALE			(1 << 16)
 
-#define SSPCR1_SSE		0x0002
-
-#define SSPSR_TNF		0x2
-#define SSPSR_TFE		0x1
+#define CONFIG_SPEAR_EMIBASE			0x4F000000
+#define CONFIG_SYS_MACB0_BASE			0xB0000000
+#define CONFIG_SYS_MACB1_BASE			0xB0800000
+#define CONFIG_SYS_MACB2_BASE			0xB1000000
+#define CONFIG_SYS_MACB3_BASE			0xB1800000
+#define CONFIG_SPEAR_RASBASE			0xB4000000
 
 #endif

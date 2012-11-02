@@ -21,15 +21,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __SPR_DEFS_H__
-#define __SPR_DEFS_H__
+#ifndef ASM_ARCH_SPEAR_GENERIC_H
+#define ASM_ARCH_SPEAR_GENERIC_H
 
-extern int spear_board_init(ulong);
+/* Routines exported from baord */
 extern void setfreq(unsigned int, unsigned int);
 extern unsigned int setfreq_sz;
 
-void plat_ddr_init(void);
-void soc_init(void);
 void spear_late_init(void);
 void plat_late_init(void);
 
@@ -44,13 +42,6 @@ int spi_boot_selected(void);
 int mmc_boot_selected(void);
 
 extern u32 mpmc_conf_vals[];
-
-struct chip_data {
-	int cpufreq;
-	int dramfreq;
-	int dramtype;
-	uchar version[32];
-};
 
 /* HW mac id in i2c memory definitions */
 #define MAGIC_OFF	0x0
