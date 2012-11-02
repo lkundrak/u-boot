@@ -753,6 +753,7 @@ Vipin Kumar <vipin.kumar@st.com>
 	spear600	ARM926EJS (spear600 Soc)
 	spear1310-evb	ARM ARMV7 (spear1310 SoC)
 	spear1340-evb	ARM ARMV7 (spear1340 SoC)
+	spear1340-lcad	ARM ARMV7 (spear1340 SoC)
 
 Sergey Lapin <slapin@ossfans.org>
 
