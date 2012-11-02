@@ -22,41 +22,55 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
+#include <asm/arch/boot.h>
+#include <linux/mtd/st_smi.h>
 
-void enable_caches(void)
+ulong spl_boot(void)
 {
-#ifndef CONFIG_SYS_DCACHE_OFF
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
-#endif
-}
+	ulong ret;
 
-#ifdef CONFIG_POST
-int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
-{
-	/*
-	 * Run the POST test on 64 MB memory starting from CONFIG_SYS_LOAD_ADDR
-	 * The assumption here is that the DDR present on board is >= 128MB.
-	 *
-	 * The test runs before relocation (after the code copy has taken
-	 * place), so it can not touch either before or after relocation areas
-	 * of U-boot
-	 *
-	 * DDR usage
-	 * <--------->|<---------------- / --------------->|<---------->
-	 *   U-boot		Area to be used for		U-boot
-	 *   before		POST test			after
-	 *   relocation						relocation
-	 */
-
-	*vstart = CONFIG_SYS_LOAD_ADDR;
-	*size = 64 << 20;
-
+#if defined(CONFIG_SPEAR_USBTTY)
 	return 0;
-}
-
-void arch_memory_failure_handle(void)
-{
-	hang();
-}
 #endif
+
+	switch (get_boot_type()) {
+	case BOOT_TYPE_BYPASS:
+	case BOOT_TYPE_SMI:
+		/* SNOR-SMI initialization */
+		smi_init();
+		ret = (ulong)CONFIG_SYS_SNOR_BOOT_BASE;
+		break;
+
+	case BOOT_TYPE_NAND:
+		ret = (ulong)CONFIG_SYS_NAND_BOOT_BASE;
+		break;
+
+	case BOOT_TYPE_PNOR8:
+	case BOOT_TYPE_PNOR16:
+	case BOOT_TYPE_PNOR32:
+		ret = (ulong)CONFIG_SYS_PNOR_BOOT_BASE;
+		break;
+
+	case BOOT_TYPE_USBD:
+	case BOOT_TYPE_TFTP:
+	case BOOT_TYPE_PCIE:
+	case BOOT_TYPE_UART:
+		ret = 0;
+		break;
+
+	case BOOT_TYPE_MMC:
+		ret = (ulong)CONFIG_SYS_MMC_BOOT_FILE;
+		break;
+
+	case BOOT_TYPE_I2C:
+	case BOOT_TYPE_SPI:
+	case BOOT_TYPE_RESERVED:
+	case BOOT_TYPE_UNSUPPORTED:
+	default:
+		ret = (ulong)-1;
+		break;
+	}
+
+	return ret;
+}
