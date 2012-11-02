@@ -25,6 +25,93 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/misc.h>
+#include <asm/arch/pinmux.h>
+
+/* Pinmux support for all fixed spear3xx devices */
+
+/* Pinmux for I2C0 */
+static void enable_i2c0_pins(void)
+{
+	pinmux_maskval(SPEAR3XX_FUNC_ENB_REG,
+			PMX_I2C_MASK,
+			PMX_I2C_MASK);
+}
+
+/* Pinmux for SSP0 */
+static void enable_ssp0_pins(void)
+{
+	pinmux_maskval(SPEAR3XX_FUNC_ENB_REG,
+			PMX_SSP_MASK,
+			PMX_SSP_MASK);
+}
+
+/* Pinmux for ETH0 */
+static void enable_eth0_pins(void)
+{
+	pinmux_maskval(SPEAR3XX_FUNC_ENB_REG,
+			PMX_MII_MASK,
+			PMX_MII_MASK);
+}
+
+/* Pinmux for UART0 ext */
+static void enable_uart0_ext_pins(void)
+{
+	pinmux_maskval(SPEAR3XX_FUNC_ENB_REG,
+			PMX_UART0_MODEM_MASK,
+			PMX_UART0_MODEM_MASK);
+
+}
+
+/* Pinmux for UART0 */
+static void enable_uart0_simple_pins(void)
+{
+	pinmux_maskval(SPEAR3XX_FUNC_ENB_REG,
+			PMX_UART0_MASK,
+			PMX_UART0_MASK);
+}
+
+static void enable_uart0_pins(u32 mode)
+{
+	switch (mode) {
+	case PMX_UART_SIMPLE:
+		enable_uart0_simple_pins();
+		break;
+	case PMX_UART_MODEM:
+		enable_uart0_ext_pins();
+		break;
+	}
+}
+
+/**
+ * spear3xx_enable_pins - enable pins for fixed peripherals on spear3xx devices
+ * @ip:		Peripheral index
+ * @mode:	Mode in which peripheral has to run (16bit/8bit etc)
+ *
+ * Enable the pins for fixed peripherals on spear3xx devices.
+ * mode represents the mode in which the peripheral may work and may result in
+ * different pins being enabled. eg GMII mode and RGMII mode may need different
+ * pins on devices to be enabled
+ */
+void spear3xx_enable_pins(u32 ip, u32 mode)
+{
+	switch (ip) {
+	case PMX_I2C0:
+		enable_i2c0_pins();
+		break;
+	case PMX_SSP0:
+		enable_ssp0_pins();
+		break;
+	case PMX_ETH0:
+		enable_eth0_pins();
+		break;
+	case PMX_UART0:
+		enable_uart0_pins(mode);
+		break;
+	default:
+		printf("Unsupported device\n");
+		break;
+	}
+}
 
 #if defined(CONFIG_USB_EHCI_SPEAR)
 void spear3xx_usbh_stop(void)

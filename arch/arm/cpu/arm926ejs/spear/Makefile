@@ -32,6 +32,9 @@ COBJS-y += timer.o
 
 COBJS-$(CONFIG_ST_EMI) += emi.o
 COBJS-$(CONFIG_ARCH_SPEAR3XX) += spear3xx.o
+COBJS-$(CONFIG_SOC_SPEAR300) += spear300.o
+COBJS-$(CONFIG_SOC_SPEAR310) += spear310.o
+COBJS-$(CONFIG_SOC_SPEAR320) += spear320.o
 COBJS-$(CONFIG_ARCH_SPEAR6XX) += spear6xx.o
 
 ifdef CONFIG_SPL_BUILD
@@ -39,9 +42,8 @@ COBJS-y	+= spl.o spl_boot.o
 COBJS-$(CONFIG_SOC_SPEAR600) += spl-spear600.o
 endif
 
-SRCS	:= $(START:.o=.S) $(COBJS-y:.o=.c)
+SRCS	:= $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
-START	:= $(addprefix $(obj),$(START))
 
 all:	$(obj).depend $(LIB)
 
