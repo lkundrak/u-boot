@@ -30,6 +30,8 @@ COBJS-y	:= cpu.o \
 	   timer.o
 
 COBJS-$(CONFIG_ST_EMI) += emi.o
+COBJS-$(CONFIG_ARCH_SPEAR3XX) += spear3xx.o
+COBJS-$(CONFIG_ARCH_SPEAR6XX) += spear6xx.o
 
 ifdef CONFIG_SPL_BUILD
 COBJS-y	+= spl.o spl_boot.o
