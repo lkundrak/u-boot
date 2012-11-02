@@ -25,7 +25,6 @@
 #include <command.h>
 #include <i2c.h>
 #include <net.h>
-#include <linux/mtd/st_smi.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/generic.h>
@@ -45,80 +44,6 @@ int dram_init(void)
 	/* Store complete RAM size and return */
 	gd->ram_size = get_ram_size(CONFIG_SYS_SDRAM_BASE, SDRAM_MAX_SIZE);
 
-	return 0;
-}
-
-int board_early_init_f()
-{
-#if defined(CONFIG_ST_SMI)
-	smi_init();
-#endif
-	return 0;
-}
-
-#ifdef CONFIG_SPEAR_EMI
-struct cust_emi_para {
-	unsigned int tap;
-	unsigned int tsdp;
-	unsigned int tdpw;
-	unsigned int tdpr;
-	unsigned int tdcs;
-};
-
-/* EMI timing setting of m28w640hc of linux kernel */
-const struct cust_emi_para emi_timing_m28w640hc = {
-	.tap = 0x10,
-	.tsdp = 0x05,
-	.tdpw = 0x0a,
-	.tdpr = 0x0a,
-	.tdcs = 0x05,
-};
-
-/* EMI timing setting of bootrom */
-const struct cust_emi_para emi_timing_bootrom = {
-	.tap = 0xf,
-	.tsdp = 0x0,
-	.tdpw = 0xff,
-	.tdpr = 0x111,
-	.tdcs = 0x02,
-};
-
-void spear_emi_init(void)
-{
-	const struct cust_emi_para *p = &emi_timing_m28w640hc;
-	struct emi_regs *emi_regs_p = (struct emi_regs *)CONFIG_SPEAR_EMIBASE;
-	unsigned int cs;
-	unsigned int val, tmp;
-
-	val = readl(CONFIG_SPEAR_RASBASE);
-
-	if (val & EMI_ACKMSK)
-		tmp = 0x3f;
-	else
-		tmp = 0x0;
-
-	writel(tmp, &emi_regs_p->ack);
-
-	for (cs = 0; cs < CONFIG_SYS_MAX_FLASH_BANKS; cs++) {
-		writel(p->tap, &emi_regs_p->bank_regs[cs].tap);
-		writel(p->tsdp, &emi_regs_p->bank_regs[cs].tsdp);
-		writel(p->tdpw, &emi_regs_p->bank_regs[cs].tdpw);
-		writel(p->tdpr, &emi_regs_p->bank_regs[cs].tdpr);
-		writel(p->tdcs, &emi_regs_p->bank_regs[cs].tdcs);
-		writel(EMI_CNTL_ENBBYTERW | ((val & 0x18) >> 3),
-		       &emi_regs_p->bank_regs[cs].control);
-	}
-}
-#endif
-
-int spear_board_init(ulong mach_type)
-{
-	/* adress of boot parameters */
-	gd->bd->bi_boot_params = CONFIG_BOOT_PARAMS_ADDR;
-
-#ifdef CONFIG_SPEAR_EMI
-	spear_emi_init();
-#endif
 	return 0;
 }
 
