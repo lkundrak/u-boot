@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright (C) 2012 ST Microelectronics
+# Vipin Kumar <vipin.kumar@st.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,30 +21,4 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)board/$(VENDOR)/common)
-endif
-
-LIB	= $(obj)lib$(VENDOR).o
-
-ifndef CONFIG_SPL_BUILD
-COBJS	:= spr_misc.o
-SOBJS	:= spr_lowlevel_init.o
-endif
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-#########################################################################
-# This is for $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+ALL-y += $(obj)u-boot.img

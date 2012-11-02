@@ -39,46 +39,22 @@ DECLARE_GLOBAL_DATA_PTR;
 #if defined(CONFIG_CMD_NET)
 static int i2c_read_mac(uchar *buffer);
 #endif
+void lowlevel_init(void)
+{
+}
 
 int dram_init(void)
 {
 	/* Store complete RAM size and return */
-	gd->ram_size = get_ram_size(PHYS_SDRAM_1, PHYS_SDRAM_1_MAXSIZE);
+	gd->ram_size = get_ram_size(CONFIG_SYS_SDRAM_BASE, SDRAM_MAX_SIZE);
 
 	return 0;
-}
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = gd->ram_size;
 }
 
 int board_early_init_f()
 {
 #if defined(CONFIG_ST_SMI)
 	smi_init();
-#endif
-	return 0;
-}
-int misc_init_r(void)
-{
-#if defined(CONFIG_CMD_NET)
-	uchar mac_id[6];
-
-	if (!eth_getenv_enetaddr("ethaddr", mac_id) && !i2c_read_mac(mac_id))
-		eth_setenv_enetaddr("ethaddr", mac_id);
-#endif
-	setenv("verify", "n");
-
-#if defined(CONFIG_SPEAR_USBTTY)
-	setenv("stdin", "usbtty");
-	setenv("stdout", "usbtty");
-	setenv("stderr", "usbtty");
-
-#ifndef CONFIG_SYS_NO_DCACHE
-	dcache_enable();
-#endif
 #endif
 	return 0;
 }
@@ -140,8 +116,6 @@ void spear_emi_init(void)
 
 int spear_board_init(ulong mach_type)
 {
-	gd->bd->bi_arch_number = mach_type;
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_BOOT_PARAMS_ADDR;
 
