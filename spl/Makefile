@@ -61,6 +61,10 @@ LIBS-$(CONFIG_SPL_NET_SUPPORT) += net/libnet.o
 LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/libnet.o
 LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/libphy.o
 
+ifeq ($(BOARD),spear)
+LIBS-y += board/$(BOARDDIR)/ddr/lib$(BOARD)ddr.o
+endif
+
 ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif

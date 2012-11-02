@@ -22,14 +22,16 @@
  */
 
 #include <common.h>
+#include <asm/arch/hardware.h>
 
-#if (CONFIG_DDR_PLL2 || CONFIG_DDR_2HCLK)
+#if defined(CONFIG_ARCH_SPEAR6XX) && \
+	(defined(CONFIG_SPEAR_DDR_PLL2) || defined(CONFIG_SPEAR_DDR_2HCLK))
 
 const u32 mpmc_conf_vals[CONFIG_SPEAR_MPMCREGS] = {
-#if (CONFIG_DDR_PLL2)
+#if defined(CONFIG_SPEAR_DDR_PLL2)
 	0x00000001,
 	0x00000000,
-#elif (CONFIG_DDR_2HCLK)
+#elif defined(CONFIG_SPEAR_DDR_2HCLK)
 	0x02020201,
 	0x02020202,
 #endif
@@ -47,7 +49,11 @@ const u32 mpmc_conf_vals[CONFIG_SPEAR_MPMCREGS] = {
 	0x03050502,
 	0x03040404,
 	0x02020503,
+#ifdef CONFIG_X600
+	0x02030206,
+#else
 	0x02010106,
+#endif
 	0x03000405,
 	0x03040202,
 	0x04000305,
@@ -71,8 +77,13 @@ const u32 mpmc_conf_vals[CONFIG_SPEAR_MPMCREGS] = {
 	0x11000000,
 	0x00001302,
 	0x00000A0A,
+#ifdef CONFIG_X600
+	0x7f000000,
+	0x005c0000,
+#else
 	0x72000000,
 	0x00550000,
+#endif
 	0x2b050e86,
 	0x00640064,
 	0x00640064,
