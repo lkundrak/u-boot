@@ -135,3 +135,10 @@ int board_mmc_init(bd_t *bis)
 	return ret;
 }
 #endif
+
+#if defined(CONFIG_SPL_BUILD)
+void board_ddr_init(void)
+{
+	spear3xx_ddr_comp_init();
+}
+#endif
