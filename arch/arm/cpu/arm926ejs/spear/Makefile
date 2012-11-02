@@ -38,7 +38,7 @@ COBJS-$(CONFIG_SOC_SPEAR320) += spear320.o
 COBJS-$(CONFIG_ARCH_SPEAR6XX) += spear6xx.o
 
 ifdef CONFIG_SPL_BUILD
-COBJS-y	+= spl.o spl_boot.o
+COBJS-y	+= spl.o spl_boot.o spl_nand.o
 COBJS-$(CONFIG_SOC_SPEAR600) += spl-spear600.o
 endif
 
