@@ -1,6 +1,5 @@
 /*
  * (C) Copyright 2009
- * Ryan Chen, ST Micoelectronics, ryan.chen@st.com.
  * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
  *
  * See file CREDITS for list of people who contributed to this
@@ -32,20 +31,17 @@
 #include <asm/arch/generic.h>
 #include <asm/arch/misc.h>
 
+#if defined(CONFIG_CMD_NAND)
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
+#endif
 
-int board_init(void)
-{
-	return spear_board_init(MACH_TYPE_SPEAR310);
-}
-
+#if defined(CONFIG_CMD_NAND)
 /*
  * board_nand_init - Board specific NAND initialization
  * @nand:	mtd private chip structure
  *
  * Called by nand_init_chip to initialize the board specific functions
  */
-
 void board_nand_init()
 {
 	struct misc_regs *const misc_regs_p =
@@ -53,43 +49,26 @@ void board_nand_init()
 	struct nand_chip *nand = &nand_chip[0];
 
 #if defined(CONFIG_NAND_FSMC)
-	if (((readl(&misc_regs_p->auto_cfg_reg) & MISC_SOCCFGMSK) ==
-	     MISC_SOCCFG30) ||
-	    ((readl(&misc_regs_p->auto_cfg_reg) & MISC_SOCCFGMSK) ==
-	     MISC_SOCCFG31)) {
-
+	if (!(readl(&misc_regs_p->auto_cfg_reg) & MISC_NANDDIS))
 		fsmc_nand_init(nand);
-	}
 #endif
 	return;
 }
+#endif
 
+#if defined(CONFIG_CMD_NET)
 int board_eth_init(bd_t *bis)
 {
 	int ret = 0;
-
 #if defined(CONFIG_DESIGNWARE_ETH)
 	u32 interface = PHY_INTERFACE_MODE_MII;
+#if defined(CONFIG_DW_AUTONEG)
+	interface = PHY_INTERFACE_MODE_GMII;
+#endif
 	if (designware_initialize(0, CONFIG_SPEAR_ETHBASE, CONFIG_DW0_PHY,
 				interface) >= 0)
 		ret++;
 #endif
-#if defined(CONFIG_MACB)
-	if (macb_eth_initialize(0, (void *)CONFIG_SYS_MACB0_BASE,
-				CONFIG_MACB0_PHY) >= 0)
-		ret++;
-
-	if (macb_eth_initialize(1, (void *)CONFIG_SYS_MACB1_BASE,
-				CONFIG_MACB1_PHY) >= 0)
-		ret++;
-
-	if (macb_eth_initialize(2, (void *)CONFIG_SYS_MACB2_BASE,
-				CONFIG_MACB2_PHY) >= 0)
-		ret++;
-
-	if (macb_eth_initialize(3, (void *)CONFIG_SYS_MACB3_BASE,
-				CONFIG_MACB3_PHY) >= 0)
-		ret++;
-#endif
 	return ret;
 }
+#endif

@@ -32,30 +32,17 @@
 #include <asm/arch/generic.h>
 #include <asm/arch/misc.h>
 
-#define PLGPIO_SEL_36	0xb3000028
-#define PLGPIO_IO_36	0xb3000038
-
+#if defined(CONFIG_CMD_NAND)
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
+#endif
 
-static void spear_phy_reset(void)
-{
-	writel(0x10, PLGPIO_IO_36);
-	writel(0x10, PLGPIO_SEL_36);
-}
-
-int board_init(void)
-{
-	spear_phy_reset();
-	return spear_board_init(MACH_TYPE_SPEAR320);
-}
-
+#if defined(CONFIG_CMD_NAND)
 /*
  * board_nand_init - Board specific NAND initialization
  * @nand:	mtd private chip structure
  *
  * Called by nand_init_chip to initialize the board specific functions
  */
-
 void board_nand_init()
 {
 	struct misc_regs *const misc_regs_p =
@@ -71,10 +58,11 @@ void board_nand_init()
 		fsmc_nand_init(nand);
 	}
 #endif
-
 	return;
 }
+#endif
 
+#if defined(CONFIG_CMD_NET)
 int board_eth_init(bd_t *bis)
 {
 	int ret = 0;
@@ -89,6 +77,19 @@ int board_eth_init(bd_t *bis)
 	if (macb_eth_initialize(0, (void *)CONFIG_SYS_MACB0_BASE,
 				CONFIG_MACB0_PHY) >= 0)
 		ret++;
+
+	if (macb_eth_initialize(1, (void *)CONFIG_SYS_MACB1_BASE,
+				CONFIG_MACB1_PHY) >= 0)
+		ret++;
+
+	if (macb_eth_initialize(2, (void *)CONFIG_SYS_MACB2_BASE,
+				CONFIG_MACB2_PHY) >= 0)
+		ret++;
+
+	if (macb_eth_initialize(3, (void *)CONFIG_SYS_MACB3_BASE,
+				CONFIG_MACB3_PHY) >= 0)
+		ret++;
 #endif
 	return ret;
 }
+#endif
