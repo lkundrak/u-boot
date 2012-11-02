@@ -29,7 +29,7 @@
 #define CONFIG_PLAT_SPEAR
 
 #define CONFIG_SYS_TEXT_BASE			0x00700000
-#define CONFIG_BOOT_PARAMS_ADDR			0x00000100
+#define CONFIG_BOOT_PARAMS_P			0x00000100
 
 /* Timer, HZ specific defines */
 #define CONFIG_SYS_HZ				1000
@@ -38,7 +38,6 @@
 #if defined(CONFIG_DESIGNWARE_ETH) || defined(CONFIG_MACB)
 	#define CONFIG_MII
 	#define CONFIG_NET_MULTI
-	#define CONFIG_PHY_GIGE
 
 	#define CONFIG_CMD_NET
 	#define CONFIG_CMD_MII
@@ -50,7 +49,7 @@
 #endif
 
 /* Generic configuration for USBD driver */
-#if defined(CONFIG_DW_UDC)
+#if defined(CONFIG_DW_UDC) || defined(CONFIG_DW_OTG)
 	#define CONFIG_USB_DEVICE
 	#define CONFIG_USBD_HS
 	#define CONFIG_USB_TTY
@@ -87,6 +86,25 @@
 	#define CONFIG_CMD_I2C
 #endif
 
+/* Generic configuration for GPIO driver */
+#if defined(CONFIG_SPEAR_GPIO)
+	#define CONFIG_CMD_GPIO
+#endif
+
+/* Generic configuration for USB EHCI driver */
+#if defined(CONFIG_USB_EHCI_SPEAR)
+	#define CONFIG_USB_EHCI
+	#define CONFIG_USB_STORAGE
+	#define CONFIG_CMD_USB
+#endif
+
+/* Enable FAT and Partition types */
+#if defined(CONFIG_USB_STORAGE)
+	#define CONFIG_CMD_FAT
+	#define CONFIG_DOS_PARTITION
+	#define CONFIG_ISO_PARTITION
+#endif
+
 /* Generic configuration for ST SMI driver */
 #if defined(CONFIG_ST_SMI)
 	#define CONFIG_SYS_FLASH_ERASE_TOUT	(3 * CONFIG_SYS_HZ)
@@ -105,6 +123,23 @@
 	#define CONFIG_BAUDRATE			115200
 	#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, \
 						57600, 115200 }
+#endif
+
+/* Generic configuration for AMBA PL022 driver */
+#if defined(CONFIG_PL022_SPI)
+	#define CONFIG_CMD_SPI
+	#if defined(CONFIG_SPI_FLASH)
+		#define CONFIG_CMD_SF
+		#define CONFIG_SPI_FLASH_STMICRO
+	#endif
+#endif
+
+/* Generic configuration for Arasan SD/MMC driver */
+#if defined(CONFIG_SPEAR_SDHCI)
+	#define CONFIG_MMC
+	#define CONFIG_SDHCI
+	#define CONFIG_GENERIC_MMC
+	#define CONFIG_CMD_MMC
 #endif
 
 /* Generic configuration for FSMC NAND driver */
@@ -153,12 +188,20 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_ARCH_CPU_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_POST				CONFIG_SYS_POST_MEMORY
 #define CONFIG_SYS_POST_WORD_ADDR		0x0
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
+
+#if !defined(CONFIG_SPL_BUILD)
+	#define CONFIG_SYS_DCACHE_OFF
+#endif
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMDLINE_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_AUTOBOOT_KEYED
