@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2009
- * Vipin Kumar, STMicroelectronics, <vipin.kumar@st.com>
+ * Ryan CHEN, ST Micoelectronics, ryan.chen@st.com
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -21,17 +21,30 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _ASM_ARCH_SPEAR_HARDWARE_H
-#define _ASM_ARCH_SPEAR_HARDWARE_H
+#ifndef ASM_ARCH_SPEAR_EMI_H
+#define ASM_ARCH_SPEAR_EMI_H
 
-#if   defined(CONFIG_SOC_SPEAR600)
-#include <asm/arch/spear600.h>
-#elif defined(CONFIG_SOC_SPEAR300)
-#include <asm/arch/spear300.h>
-#elif defined(CONFIG_SOC_SPEAR310)
-#include <asm/arch/spear310.h>
-#elif defined(CONFIG_SOC_SPEAR320)
-#include <asm/arch/spear320.h>
+struct emi_bank_regs {
+	u32 tap;
+	u32 tsdp;
+	u32 tdpw;
+	u32 tdpr;
+	u32 tdcs;
+	u32 control;
+};
+
+struct emi_regs {
+	struct emi_bank_regs bank_regs[CONFIG_SYS_MAX_FLASH_BANKS];
+	u32 tout;
+	u32 ack;
+	u32 irq;
+};
+
+#define EMI_ACKMSK		0x40
+
+/* control register definitions */
+#define EMI_CNTL_ENBBYTEW	(1 << 2)
+#define EMI_CNTL_ENBBYTER	(1 << 3)
+#define EMI_CNTL_ENBBYTERW	(EMI_CNTL_ENBBYTER | EMI_CNTL_ENBBYTEW)
+
 #endif
-
-#endif /* _ASM_ARCH_HARDWARE_H */
