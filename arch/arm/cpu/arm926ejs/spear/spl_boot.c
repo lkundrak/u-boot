@@ -31,63 +31,40 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/generic.h>
 
-static const char kernel_name[] = "Linux";
-static const char loader_name[] = "U-Boot";
+uint32_t crc32(uint32_t, const unsigned char *, uint);
 
-int image_check_header(image_header_t *hdr, const char *name)
+int image_check_header(image_header_t *hdr)
 {
-	if (image_check_magic(hdr) &&
-	    (!strncmp(image_get_name(hdr), name, strlen(name))) &&
-	    image_check_hcrc(hdr)) {
+	if (image_check_magic(hdr) && image_check_hcrc(hdr))
 		return 1;
-	}
+
 	return 0;
 }
 
 int image_check_data(image_header_t *hdr)
 {
-	if (image_check_dcrc(hdr))
-		return 1;
+	ulong data = image_get_load(hdr);
+	ulong len = image_get_data_size(hdr);
+	ulong dcrc = crc32(0, (unsigned char *)data, len);
 
-	return 0;
+	return (dcrc == image_get_dcrc(hdr));
 }
 
-/*
- * SNOR (Serial NOR flash) related functions
- */
-void snor_init(void)
+static int snor_image_load(u8 *load_addr, void (**image_p)(void))
 {
-	struct smi_regs *const smicntl =
-		(struct smi_regs * const)CONFIG_SYS_SMI_BASE;
+	image_header_t header;
 
-	/* Setting the fast mode values. SMI working at 166/4 = 41.5 MHz */
-	writel(HOLD1 | FAST_MODE | BANK_EN | DSEL_TIME | PRESCAL4,
-	       &smicntl->smi_cr1);
-}
+	memcpy(&header, load_addr, sizeof(image_header_t));
 
-static int snor_image_load(u8 *load_addr, void (**image_p)(void),
-			   const char *image_name)
-{
-	image_header_t *header;
+	if (image_check_header(&header)) {
+		/* Copy the image to load address */
+		memcpy((void *)image_get_load(&header),
+		       load_addr + sizeof(image_header_t),
+		       image_get_data_size(&header));
 
-	/*
-	 * Since calculating the crc in the SNOR flash does not
-	 * work, we copy the image to the destination address
-	 * minus the header size. And point the header to this
-	 * new destination. This will not work for address 0
-	 * of course.
-	 */
-	header = (image_header_t *)load_addr;
-	memcpy((ulong *)(image_get_load(header) - sizeof(image_header_t)),
-	       (const ulong *)load_addr,
-	       image_get_data_size(header) + sizeof(image_header_t));
-	header = (image_header_t *)(image_get_load(header) -
-				    sizeof(image_header_t));
-
-	if (image_check_header(header, image_name)) {
-		if (image_check_data(header)) {
+		if (image_check_data(&header)) {
 			/* Jump to boot image */
-			*image_p = (void *)image_get_load(header);
+			*image_p = (void (*)(void))image_get_load(&header);
 			return 1;
 		}
 	}
@@ -102,6 +79,12 @@ static void boot_image(void (*image)(void))
 	(*funcp)();
 }
 
+static void __def_board_lowlevel_late_init(void)
+{
+}
+void board_lowlevel_late_init(void)
+	__attribute__((weak, alias("__def_board_lowlevel_late_init")));
+
 /*
  * spl_boot:
  *
@@ -114,7 +97,7 @@ u32 spl_boot(void)
 	void (*image)(void);
 
 #ifdef CONFIG_SPEAR_USBTTY
-	plat_late_init();
+	board_lowlevel_late_init();
 	return 1;
 #endif
 
@@ -126,17 +109,14 @@ u32 spl_boot(void)
 
 	if (SNOR_BOOT_SUPPORTED && snor_boot_selected()) {
 		/* SNOR-SMI initialization */
-		snor_init();
+		smi_init();
 
-		serial_puts("Booting via SNOR\n");
 		/* Serial NOR booting */
-		if (1 == snor_image_load((u8 *)CONFIG_SYS_UBOOT_BASE,
-					    &image, loader_name)) {
+		if (snor_image_load((u8 *)CONFIG_SYS_SNOR_BOOT_BASE, &image)) {
 			/* Platform related late initialasations */
-			plat_late_init();
+			board_lowlevel_late_init();
 
 			/* Jump to boot image */
-			serial_puts("Jumping to U-Boot\n");
 			boot_image(image);
 			return 1;
 		}
@@ -178,18 +158,18 @@ u32 spl_boot(void)
 	 * the following booting scenarios
 	 */
 
-	if (USB_BOOT_SUPPORTED && usb_boot_selected()) {
-		plat_late_init();
+	if (USBD_BOOT_SUPPORTED && usbd_boot_selected()) {
+		board_lowlevel_late_init();
 		return 1;
 	}
 
 	if (TFTP_BOOT_SUPPORTED && tftp_boot_selected()) {
-		plat_late_init();
+		board_lowlevel_late_init();
 		return 1;
 	}
 
 	if (UART_BOOT_SUPPORTED && uart_boot_selected()) {
-		plat_late_init();
+		board_lowlevel_late_init();
 		return 1;
 	}
 

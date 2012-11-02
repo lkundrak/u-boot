@@ -27,21 +27,85 @@
 /* Routines exported from baord */
 extern void setfreq(unsigned int, unsigned int);
 extern unsigned int setfreq_sz;
-
-void spear_late_init(void);
-void plat_late_init(void);
-
-int snor_boot_selected(void);
-int nand_boot_selected(void);
-int pnor_boot_selected(void);
-int usb_boot_selected(void);
-int uart_boot_selected(void);
-int tftp_boot_selected(void);
-int i2c_boot_selected(void);
-int spi_boot_selected(void);
-int mmc_boot_selected(void);
+extern void board_ddr_init(void);
+extern void board_lowlevel_late_init(void);
 
 extern u32 mpmc_conf_vals[];
+
+/*
+ * All SoCs should support a generic routine getboottype() which returns a
+ * bitmask with one or more of the following bits set. This is a generic routine
+ * which can be used on any SoC
+ */
+#define BOOT_TYPE_BYPASS	(1 << 1)
+#define BOOT_TYPE_SMI		(1 << 2)
+#define BOOT_TYPE_NAND		(1 << 3)
+#define BOOT_TYPE_RESERVED	(1 << 4)
+#define BOOT_TYPE_I2C		(1 << 5)
+#define BOOT_TYPE_SPI		(1 << 6)
+#define BOOT_TYPE_USBD		(1 << 7)
+#define BOOT_TYPE_TFTP		(1 << 8)
+#define BOOT_TYPE_PCIE		(1 << 9)
+#define BOOT_TYPE_UART		(1 << 10)
+#define BOOT_TYPE_MMC		(1 << 11)
+#define BOOT_TYPE_PNOR8		(1 << 12)
+#define BOOT_TYPE_PNOR16	(1 << 13)
+#define BOOT_TYPE_PNOR32	(1 << 14)
+#define BOOT_TYPE_UNSUPPORTED	(1 << 31)
+
+extern u32 getboottype(void);
+
+/* xxx_boot_selected */
+#define boot_bypass_selected()	\
+		(getboottype() & BOOT_TYPE_BYPASS)
+#define usbd_boot_selected()	\
+		(getboottype() & BOOT_TYPE_USBD)
+#define snor_boot_selected()	\
+		(getboottype() & BOOT_TYPE_SMI)
+#define nand_boot_selected()	\
+		(getboottype() & BOOT_TYPE_NAND)
+#define pnor8_boot_selected()	\
+		(getboottype() & BOOT_TYPE_PNOR8)
+#define pnor16_boot_selected()	\
+		(getboottype() & BOOT_TYPE_PNOR16)
+#define pnor32_boot_selected()	\
+		(getboottype() & BOOT_TYPE_PNOR32)
+#define pnor_boot_selected()	\
+		(pnor8_boot_selected() || \
+		pnor16_boot_selected() || \
+		pnor32_boot_selected())
+#define tftp_boot_selected()	\
+		(getboottype() & BOOT_TYPE_TFTP)
+#define uart_boot_selected()	\
+		(getboottype() & BOOT_TYPE_UART)
+#define spi_boot_selected()	\
+		(getboottype() & BOOT_TYPE_SPI)
+#define i2c_boot_selected()	\
+		(getboottype() & BOOT_TYPE_I2C)
+#define pcie_boot_selected()	\
+		(getboottype() & BOOT_TYPE_PCIE)
+#define mmc_boot_selected()	\
+		(getboottype() & BOOT_TYPE_MMC)
+
+/* Revision definitions */
+/*
+ * The definitons have started from
+ * 101 for SPEAr6xx
+ * 201 for SPEAr3xx
+ */
+#define SOC_SPEAR_NA		0
+#define SOC_SPEAR600_AA		101
+#define SOC_SPEAR600_AB		102
+#define SOC_SPEAR600_BA		103
+#define SOC_SPEAR600_BB		104
+#define SOC_SPEAR600_BC		105
+#define SOC_SPEAR600_BD		106
+
+#define SOC_SPEAR300		201
+#define SOC_SPEAR310		202
+#define SOC_SPEAR320		203
+
+extern int get_socrev(void);
 
 /* HW mac id in i2c memory definitions */
 #define MAGIC_OFF	0x0

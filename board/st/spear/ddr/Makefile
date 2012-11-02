@@ -1,5 +1,8 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2012
+# Vipin Kumar, ST Microelectronics, vipin.kumar@st.com
+#
+# (C) Copyright 2000-2004
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,27 +26,26 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).o
+LIB	= $(obj)lib$(BOARD)ddr.o
 
-COBJS-y	:= cpu.o \
-	   reset.o \
-	   timer.o
-
-COBJS-$(CONFIG_ST_EMI) += emi.o
+SOBJS-y	:=
+COBJS-y	:=
 
 ifdef CONFIG_SPL_BUILD
-COBJS-y	+= spl.o spl_boot.o
-COBJS-$(CONFIG_SOC_SPEAR600) += spl-spear600.o
+COBJS-$(CONFIG_DDR_MT47H64M16) += spear600_mt47h64m16_3_333_cl5_psync.o
+COBJS-$(CONFIG_DDR_MT47H32M16) += spear600_mt47h32m16_333_cl5_psync.o
+COBJS-$(CONFIG_DDR_MT47H32M16) += spear600_mt47h32m16_37e_166_cl4_sync.o
+COBJS-$(CONFIG_DDR_MT47H128M8) += spear600_mt47h128m8_3_266_cl5_async.o
 endif
 
-SRCS	:= $(START:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y))
-START	:= $(addprefix $(obj),$(START))
+COBJS	:= $(sort $(COBJS-y))
+SOBJS	:= $(sort $(SOBJS-y))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
 
 #########################################################################
 
