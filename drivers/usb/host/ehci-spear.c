@@ -59,6 +59,8 @@ int ehci_hcd_stop(int index)
 	spear3xx_usbh_stop();
 #elif defined(CONFIG_ARCH_SPEAR6XX)
 	spear6xx_usbh_stop();
+#elif defined(CONFIG_SOC_SPEAR1310)
+	spear1310_usbh_stop();
 #elif defined(CONFIG_SOC_SPEAR1340)
 	spear1340_usbh_stop();
 #else
