@@ -514,6 +514,13 @@ $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
 		elftosb -zf $(ELFTOSB_TARGET-y) -c $(TOPDIR)/$(CPUDIR)/$(SOC)/u-boot-$(ELFTOSB_TARGET-y).bd \
 			-o $(obj)u-boot.sb
 
+$(obj)spl/u-boot-spl.img:	$(obj)spl/u-boot-spl.bin
+		$(obj)tools/mkimage -A $(ARCH) -T firmware -C none \
+		-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) \
+		-n $(shell sed -n -e 's/.*U_BOOT_SPL_VERSION//p' $(VERSION_FILE) | \
+			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
+		-d $(obj)spl/u-boot-spl.bin $(obj)spl/u-boot-spl.img
+
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
 # Both images are created using mkimage (crc etc), so that the ROM
 # bootloader can check its integrity. Padding needs to be done to the
@@ -734,6 +741,9 @@ $(VERSION_FILE):
 		   printf '#define PLAIN_VERSION "%s%s"\n' \
 			"$(U_BOOT_VERSION)" "$${localvers}" ; \
 		   printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' \
+			"$(U_BOOT_VERSION)" "$${localvers}" ; \
+		   printf '#define U_BOOT_SPL_VERSION "%s %s%s"\n' \
+			$(if $(CONFIG_SPL_IMAGENAME),$(CONFIG_SPL_IMAGENAME),"U-Boot SPL") \
 			"$(U_BOOT_VERSION)" "$${localvers}" ; \
 		) > $@.tmp
 		@( printf '#define CC_VERSION_STRING "%s"\n' \
