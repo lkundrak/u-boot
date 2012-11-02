@@ -123,3 +123,15 @@ int board_eth_init(bd_t *bis)
 	return ret;
 }
 #endif
+
+#if defined(CONFIG_CMD_MMC)
+int board_mmc_init(bd_t *bis)
+{
+	int ret = 0;
+#if defined(CONFIG_SPEAR_SDHCI)
+	if (spear_sdhci_init(CONFIG_SYS_MMC_BASE, 24000000, 6000000, 0) >= 0)
+		ret++;
+#endif
+	return ret;
+}
+#endif
