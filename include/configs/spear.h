@@ -154,6 +154,8 @@
 /* Miscellaneous configurable options */
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_POST				CONFIG_SYS_POST_MEMORY
+#define CONFIG_SYS_POST_WORD_ADDR		0x0
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMDLINE_TAG
