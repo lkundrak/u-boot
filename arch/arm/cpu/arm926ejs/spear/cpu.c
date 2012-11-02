@@ -22,16 +22,41 @@
  */
 
 #include <common.h>
+#include <linux/mtd/st_smi.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/misc.h>
 
+#if defined(CONFIG_ARCH_SPEAR6XX)
+static void mac_init(void)
+{
+	struct misc_regs *misc_p = (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
+
+	writel(readl(&misc_p->periph1_clken) & ~MISC_ETHENB,
+			&misc_p->periph1_clken);
+
+	writel(MISC_SYNTH23, &misc_p->gmac_synth_clk);
+	writel(0x0, &misc_p->gmac_ctr_reg);
+
+	writel(readl(&misc_p->periph1_clken) | MISC_ETHENB,
+			&misc_p->periph1_clken);
+
+	writel(readl(&misc_p->periph1_rst) | MISC_ETHENB,
+			&misc_p->periph1_rst);
+	writel(readl(&misc_p->periph1_rst) & ~MISC_ETHENB,
+			&misc_p->periph1_rst);
+}
+#endif
+
 int arch_cpu_init(void)
 {
 	struct misc_regs *const misc_p =
-	    (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
+		(struct misc_regs *)CONFIG_SPEAR_MISCBASE;
 	u32 periph1_clken, periph_clk_cfg;
 
+#if defined(CONFIG_ARCH_SPEAR6XX)
+	mac_init();
+#endif
 	periph1_clken = readl(&misc_p->periph1_clken);
 
 #if defined(CONFIG_ARCH_SPEAR3XX)
@@ -65,6 +90,16 @@ int arch_cpu_init(void)
 #endif
 
 	writel(periph1_clken, &misc_p->periph1_clken);
+
+	/* Early driver initializations */
+#if defined(CONFIG_ST_SMI)
+	smi_init();
+#endif
+
+#ifdef CONFIG_ST_EMI
+	emi_init();
+#endif
+
 	return 0;
 }
 
