@@ -36,9 +36,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_NET)
-static int i2c_read_mac(uchar *buffer);
-#endif
 void lowlevel_init(void)
 {
 }
@@ -125,26 +122,33 @@ int spear_board_init(ulong mach_type)
 	return 0;
 }
 
-#if defined(CONFIG_CMD_NET)
-static int i2c_read_mac(uchar *buffer)
+#if defined(CONFIG_SPEAR_MACID_IN_I2CMEM) && defined(CONFIG_CMD_NET) && \
+	defined(CONFIG_CMD_I2C)
+int i2c_read_mac(uchar *buffer)
 {
 	u8 buf[2];
 
-	i2c_read(CONFIG_I2C_CHIPADDRESS, MAGIC_OFF, 1, buf, MAGIC_LEN);
+	/*
+	 * A magic ID which is present at offset 0 and reads 0x55AA represents
+	 * whether MACID is present starting at offset 2
+	 */
+	i2c_read(CONFIG_I2C_CHIPADDRESS, 0, 1, buf, 2);
 
 	/* Check if mac in i2c memory is valid */
-	if ((buf[0] == MAGIC_BYTE0) && (buf[1] == MAGIC_BYTE1)) {
+	if ((buf[0] == 0x55) && (buf[1] == 0xAA)) {
 		/* Valid mac address is saved in i2c eeprom */
-		i2c_read(CONFIG_I2C_CHIPADDRESS, MAC_OFF, 1, buffer, MAC_LEN);
+		i2c_read(CONFIG_I2C_CHIPADDRESS, 0x2, 1, buffer, 6);
 		return 0;
 	}
 
 	return -1;
 }
 
-static int write_mac(uchar *mac)
+static int i2c_write_mac(uchar *mac)
 {
 	u8 buf[2];
+	u8 temp[MAC_LEN];
+	int i;
 
 	buf[0] = (u8)MAGIC_BYTE0;
 	buf[1] = (u8)MAGIC_BYTE1;
@@ -158,8 +162,15 @@ static int write_mac(uchar *mac)
 	/* check if valid MAC address is saved in I2C EEPROM or not? */
 	if ((buf[0] == MAGIC_BYTE0) && (buf[1] == MAGIC_BYTE1)) {
 		i2c_write(CONFIG_I2C_CHIPADDRESS, MAC_OFF, 1, mac, MAC_LEN);
-		puts("I2C EEPROM written with mac address \n");
-		return 0;
+
+		for (i = 0; i < MAC_LEN; i++)
+			temp[i] = ~mac[i];
+		i2c_read(CONFIG_I2C_CHIPADDRESS, MAC_OFF, 1, temp, MAC_LEN);
+
+		if (!memcmp(mac, temp, MAC_LEN)) {
+			puts("I2C EEPROM written with mac address\n");
+			return 0;
+		}
 	}
 
 	puts("I2C EEPROM writing failed\n");
@@ -171,7 +182,8 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	void (*sram_setfreq) (unsigned int, unsigned int);
 	unsigned int frequency;
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_SPEAR_MACID_IN_I2CMEM) && defined(CONFIG_CMD_NET) && \
+	defined(CONFIG_CMD_I2C)
 	unsigned char mac[6];
 #endif
 
@@ -199,7 +211,8 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		return 0;
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_SPEAR_MACID_IN_I2CMEM) && defined(CONFIG_CMD_NET) && \
+	defined(CONFIG_CMD_I2C)
 	} else if (!strcmp(argv[1], "ethaddr")) {
 
 		u32 reg;
@@ -209,19 +222,18 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (s)
 				s = (*e) ? e + 1 : e;
 		}
-		write_mac(mac);
+		i2c_write_mac(mac);
 
 		return 0;
-#endif
 	} else if (!strcmp(argv[1], "print")) {
-#if defined(CONFIG_CMD_NET)
 		if (!i2c_read_mac(mac)) {
 			printf("Ethaddr (from i2c mem) = %pM\n", mac);
 		} else {
 			printf("Ethaddr (from i2c mem) = Not set\n");
 		}
-#endif
+
 		return 0;
+#endif
 	}
 
 	return cmd_usage(cmdtp);
@@ -229,8 +241,11 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(chip_config, 3, 1, do_chip_config,
 	   "configure chip",
-	   "chip_config cpufreq/ddrfreq frequency\n"
-#if defined(CONFIG_CMD_NET)
+	   "chip_config cpufreq/ddrfreq frequency"
+#if defined(CONFIG_SPEAR_MACID_IN_I2CMEM) && defined(CONFIG_CMD_NET) && \
+	defined(CONFIG_CMD_I2C)
+	   "\n"
 	   "chip_config ethaddr XX:XX:XX:XX:XX:XX\n"
+	   "chip_config print"
 #endif
-	   "chip_config print");
+	   "");
