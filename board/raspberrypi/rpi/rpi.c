@@ -13,6 +13,7 @@
 #include <lcd.h>
 #include <memalign.h>
 #include <mmc.h>
+#include <phys2bus.h>
 #include <asm/gpio.h>
 #include <asm/arch/mbox.h>
 #include <asm/arch/sdhci.h>
@@ -78,6 +79,12 @@ struct msg_set_power_state {
 struct msg_get_clock_rate {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_get_clock_rate get_clock_rate;
+	u32 end_tag;
+};
+
+struct msg_get_touchbuf {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_get_touchbuf get_touchbuf;
 	u32 end_tag;
 };
 
@@ -431,6 +438,65 @@ int board_mmc_init(bd_t *bis)
 				  msg_clk->get_clock_rate.body.resp.rate_hz);
 }
 
+static u32 get_touchbuf_address(void)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_touchbuf, msg, 1);
+	int ret;
+
+	BCM2835_MBOX_INIT_HDR(msg);
+	BCM2835_MBOX_INIT_TAG(&msg->get_touchbuf, GET_TOUCHBUF);
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
+	if (ret) {
+		printf("bcm2835: Could not query touch buffer address\n");
+		/* Ignore error; not critical */
+		return 0;
+	}
+
+	return bus_to_phys(msg->get_touchbuf.body.resp.tb_address);
+}
+
+int rpi_dt_ft5406_add_node(void *blob)
+{
+	static const char compat[] = "raspberrypi,raspberrypi-ft5406";
+	static const char okay[] = "okay";
+	char name[32];
+	int node, ret;
+	u32 address;
+	fdt32_t reg[2];
+
+	address = get_touchbuf_address ();
+	if (!address) {
+		printf("bcm2835: Touch screen not present\n");
+		return 0;
+	}
+
+	node = fdt_add_subnode(blob, 0, "rpi-ft5406");
+	if (node < 0)
+		return -1;
+
+	snprintf(name, sizeof(name), "rpi-ft5406@%" PRIx32, address);
+	ret = fdt_set_name(blob, node, name);
+	if (ret < 0)
+		return ret;
+
+	reg[0] = cpu_to_fdt32 (address);
+	reg[1] = cpu_to_fdt32 (63);
+	ret = fdt_setprop(blob, node, "reg", reg, sizeof(reg));
+	if (ret < 0)
+		return -1;
+
+	ret = fdt_setprop(blob, node, "status", okay, sizeof(okay));
+	if (ret < 0)
+		return -1;
+
+	ret = fdt_setprop(blob, node, "compatible", compat, sizeof(compat));
+	if (ret < 0)
+		return -1;
+
+	return 0;
+}
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	/*
@@ -439,6 +505,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	 * node exists for the "real" graphics driver.
 	 */
 	lcd_dt_simplefb_add_node(blob);
+
+	rpi_dt_ft5406_add_node(blob);
 
 	return 0;
 }

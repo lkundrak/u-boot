@@ -458,6 +458,19 @@ struct bcm2835_mbox_tag_get_palette {
 	} body;
 };
 
+#define BCM2835_MBOX_TAG_GET_TOUCHBUF		0x0004000f
+
+struct bcm2835_mbox_tag_get_touchbuf {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+		} req;
+		struct {
+			u32 tb_address;
+		} resp;
+	} body;
+};
+
 #define BCM2835_MBOX_TAG_TEST_PALETTE		0x0004400b
 
 struct bcm2835_mbox_tag_test_palette {
