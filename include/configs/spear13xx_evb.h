@@ -62,6 +62,8 @@
 #endif
 #endif
 
+#if 000000
+/* Needs port: ./drivers/spi/pl022_spi.c */
 #define CONFIG_PL022_SPI		1
 #define CONFIG_SYS_SPI_BASE		0xE0100000
 #define CONFIG_SYS_SPI_CLK		83000000
@@ -69,6 +71,7 @@
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
+#endif /* 000000 */
 
 #if !defined(CONFIG_SPEAR_USBTTY)
 /* MMC configuration */
