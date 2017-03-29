@@ -10,6 +10,7 @@
 #include <i2c.h>
 #include <pci.h>
 #include <asm/io.h>
+#include <asm/arch/hardware.h>
 #include "designware_i2c.h"
 
 struct dw_scl_sda_cfg {

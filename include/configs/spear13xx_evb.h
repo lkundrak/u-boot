@@ -112,6 +112,11 @@
 
 #define CONFIG_EXTRA_ENV_USBTTY			"usbtty=cdc_acm\0"
 
+/* I2C driver configuration */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_BASE			(0xE0280000)
+#define CONFIG_SYS_I2C_SPEED			400000
+
 /* Flash configuration */
 #define CONFIG_ST_SMI				1
 #define CONFIG_SYS_MAX_FLASH_BANKS		2
