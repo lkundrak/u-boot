@@ -16,6 +16,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/spr_misc.h>
 
+#if defined(CONFIG_SPEAR600)
 static void spear6xx_usbh_stop(void)
 {
 	struct misc_regs *const misc_p =
@@ -29,6 +30,7 @@ static void spear6xx_usbh_stop(void)
 	periph1_rst &= ~(PERIPH_USBH1 | PERIPH_USBH2);
 	writel(periph1_rst, misc_p->periph1_rst);
 }
+#endif
 
 /*
  * Create the appropriate control structures to manage
