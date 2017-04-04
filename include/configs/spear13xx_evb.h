@@ -73,6 +73,8 @@
 #define CONFIG_SPI_FLASH_STMICRO
 #endif /* 000000 */
 
+#if 000000
+/* Needs port: drivers/mmc/spear_mmc.c */
 #if !defined(CONFIG_SPEAR_USBTTY)
 /* MMC configuration */
 #define CONFIG_MMC
@@ -80,6 +82,7 @@
 #define CONFIG_SPEAR_MMC
 #define CONFIG_CMD_MMC
 #endif
+#endif /* 000000 */
 
 #if !defined(CONFIG_SPEAR_USBTTY)
 /* Ethernet configuration */
