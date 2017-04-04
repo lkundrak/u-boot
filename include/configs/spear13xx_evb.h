@@ -24,6 +24,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <config_distro_defaults.h>
+
 /* U-Boot Load Address */
 #define CONFIG_SYS_TEXT_BASE			0x00700000
 
@@ -181,25 +183,11 @@
  * Command support defines
  */
 
-#if !defined(CONFIG_SPEAR_USBTTY)
-#if defined(CONFIG_USB_STORAGE) || defined(CONFIG_MMC)
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
-#define CONFIG_ISO_PARTITION
-#endif
-#endif
-
 #if defined(CONFIG_SPEAR_USBTTY)
+#undef CONFIG_CMD_FAT
+#undef CONFIG_DOS_PARTITION
+#undef CONFIG_ISO_PARTITION
 #undef CONFIG_CMD_NET
-#endif
-
-/*
- * Default Environment Varible definitions
- */
-#if defined(CONFIG_SPEAR_USBTTY)
-/* This disbales autobooting and stops at uboot prompt */
-#undef CONFIG_BOOTDELAY
-#define CONFIG_BOOTDELAY			-1
 #endif
 
 #define CONFIG_ENV_OVERWRITE
@@ -219,8 +207,6 @@
 #define CONFIG_FSMTDBLK				"/dev/mtdblock4 "
 #endif
 
-#define CONFIG_BOOTCOMMAND			"bootm 0xe6050000"
-
 #define CONFIG_ENV_ADDR				(CONFIG_SYS_FLASH_BASE + \
 						CONFIG_SYS_MONITOR_LEN)
 #elif defined(CONFIG_ENV_IS_IN_NAND)
@@ -237,15 +223,6 @@
 #define CONFIG_FSMTDBLK				"/dev/mtdblock8 "
 #endif
 
-#if defined(CONFIG_SPEAR1340)
-#define CONFIG_OSBOOTOFF			"0x500000 "
-#else
-#define CONFIG_OSBOOTOFF			"0x200000 "
-#endif
-
-#define CONFIG_BOOTCOMMAND			"nand read.jffs2 0x1600000 " \
-						CONFIG_OSBOOTOFF "0x4C0000; " \
-						"bootm 0x1600000"
 #elif defined(CONFIG_ENV_IS_NOWHERE)
 #define CONFIG_ENV_RANGE			0x10000
 #define CONFIG_ENV_SECT_SIZE			0x10000
@@ -299,7 +276,6 @@
 #define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
-#define CONFIG_SYS_64BIT_VSPRINTF		1
 
 #define CONFIG_EXTRA_ENV_SETTINGS		CONFIG_EXTRA_ENV_USBTTY
 
@@ -317,5 +293,15 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR			\
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(SATA, sata, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
 
 #endif
