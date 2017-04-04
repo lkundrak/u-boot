@@ -24,29 +24,19 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#if defined(CONFIG_MK_spear1300)
-#define CONFIG_SPEAR13XX			1
-#define CONFIG_SPEAR1300			1
-#endif
+/* U-Boot Load Address */
+#define CONFIG_SYS_TEXT_BASE			0x00700000
 
-#if defined(CONFIG_MK_spear1310) && defined(CONFIG_MK_reva)
-#define CONFIG_SPEAR13XX			1
-#define CONFIG_SPEAR1310_REVA			1
-#endif
-
-#if defined(CONFIG_MK_spear1340)
-#define CONFIG_SPEAR13XX			1
-#define CONFIG_SPEAR1340			1
-#endif
-
-#if defined(CONFIG_MK_spear1310) && !defined(CONFIG_MK_reva)
-#define CONFIG_SPEAR13XX			1
-#define CONFIG_SPEAR1310			1
-#endif
-
-#if defined(CONFIG_MK_spear900)
-#define CONFIG_SPEAR13XX			1
-#define CONFIG_SPEAR900			1
+#if defined(CONFIG_SPEAR900)
+#define CONFIG_SPEAR13XX
+#elif defined(CONFIG_SPEAR1300)
+#define CONFIG_SPEAR13XX
+#elif defined(CONFIG_SPEAR1310)
+#define CONFIG_SPEAR13XX
+#elif defined(CONFIG_SPEAR1310_REVA)
+#define CONFIG_SPEAR13XX
+#elif defined(CONFIG_SPEAR1340)
+#define CONFIG_SPEAR13XX
 #endif
 
 #if defined(CONFIG_MK_nand)
@@ -129,9 +119,6 @@
 
 #define CONFIG_EXTRA_ENV_USBTTY			"usbtty=cdc_acm\0"
 
-/* Timer, HZ specific defines */
-#define CONFIG_SYS_HZ				(1000)
-
 /* Flash configuration */
 #define CONFIG_ST_SMI				1
 #define CONFIG_SYS_MAX_FLASH_BANKS		2
@@ -188,41 +175,26 @@
 /*
  * Command support defines
  */
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_RUN
 
 #if !defined(CONFIG_SPEAR_USBTTY)
-#define CONFIG_CMD_NET
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-
 #if defined(CONFIG_USB_STORAGE) || defined(CONFIG_MMC)
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 #endif
-
 #endif
-
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <config_cmd_default.h>
 
 #if defined(CONFIG_SPEAR_USBTTY)
 #undef CONFIG_CMD_NET
 #endif
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_XIMG
-#undef CONFIG_CMD_LOADS
 
 /*
  * Default Environment Varible definitions
  */
 #if defined(CONFIG_SPEAR_USBTTY)
 /* This disbales autobooting and stops at uboot prompt */
+#undef CONFIG_BOOTDELAY
 #define CONFIG_BOOTDELAY			-1
-#else
-#define CONFIG_BOOTDELAY			1
 #endif
 
 #define CONFIG_ENV_OVERWRITE
@@ -304,25 +276,18 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_ARCH_CPU_INIT			1
-#define CONFIG_DISPLAY_CPUINFO			1
 
 #define CONFIG_BOOT_PARAMS_ADDR			0x00000100
 #define CONFIG_CMDLINE_TAG			1
 #define CONFIG_SETUP_MEMORY_TAGS		1
 #define CONFIG_MISC_INIT_R			1
 #define CONFIG_ZERO_BOOTDELAY_CHECK		1
-#define CONFIG_AUTOBOOT_KEYED			1
-#define CONFIG_AUTOBOOT_STOP_STR		" "
-#define CONFIG_AUTOBOOT_PROMPT			\
-		"Hit SPACE in %d seconds to stop autoboot.\n", bootdelay
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000
 #define CONFIG_SYS_MALLOC_LEN			(1024*1024)
 #define CONFIG_SYS_GBL_DATA_SIZE		128
-#define CONFIG_IDENT_STRING			"-SPEAr"
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT			"u-boot> "
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_CBSIZE			256
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \
@@ -330,7 +295,6 @@
 #define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
-#define CONFIG_SYS_CONSOLE_INFO_QUIET		1
 #define CONFIG_SYS_64BIT_VSPRINTF		1
 
 #define CONFIG_EXTRA_ENV_SETTINGS		CONFIG_EXTRA_ENV_USBTTY
