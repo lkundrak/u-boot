@@ -9,6 +9,8 @@ ifdef CONFIG_SPL_BUILD
 # necessary to create built-in.o
 obj- := __dummy__.o
 else
-obj-y	:= spr_misc.o
-obj-y	+= spr_lowlevel_init.o
+obj-$(CONFIG_SPEAR3XX)	+= spr_misc.o spr_lowlevel_init.o
+obj-$(CONFIG_SPEAR600)	+= spr_misc.o spr_lowlevel_init.o
+obj-$(CONFIG_SPEAR13XX) += spr13xx_misc.o
+obj-$(CONFIG_SPEAR13XX) += spr13xx_lowlevel_init.o
 endif

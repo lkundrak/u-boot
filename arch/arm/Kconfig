@@ -400,6 +400,10 @@ config TARGET_SPEAR600
 	select CPU_ARM926EJS
 	select BOARD_EARLY_INIT_F
 
+config TARGET_SPEAR1340
+	bool "Support spear1340"
+	select CPU_V7
+
 config TARGET_STV0991
 	bool "Support stv0991"
 	select CPU_V7
@@ -1304,6 +1308,7 @@ source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
 source "board/spear/spear320/Kconfig"
 source "board/spear/spear600/Kconfig"
+source "board/spear/spear1340/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"

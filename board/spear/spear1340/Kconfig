@@ -1,0 +1,15 @@
+if TARGET_SPEAR1340
+
+config SYS_BOARD
+	default "spear1340"
+
+config SYS_VENDOR
+	default "spear"
+
+config SYS_SOC
+	default "spear13xx"
+
+config SYS_CONFIG_NAME
+	default "spear13xx_evb"
+
+endif

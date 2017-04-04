@@ -39,6 +39,8 @@
 #define CONFIG_SPEAR13XX
 #endif
 
+#define CONFIG_SPL_FRAMEWORK
+
 #if defined(CONFIG_MK_nand)
 #define CONFIG_ENV_IS_IN_NAND			1
 #else
